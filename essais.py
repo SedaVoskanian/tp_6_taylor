@@ -1,5 +1,5 @@
 ##2.Découverte d'autograd
-# À LA PLACE de l'habituel 'import numpy as np'
+
 import autograd.numpy as np
 from autograd import grad
 
@@ -7,17 +7,16 @@ from autograd import grad
 X=np.linspace(0,2*np.pi,10)
 
 #2.2 Dérivée
-sin_der=np.vectorize(grad(np.sin))
+sin_der=np.vectorize(grad(np.sin)) # on met np.vectorize car grad ne sait traiter que des scalaires et non des tableaux.
 print('sin_der(X)=',sin_der(X))
 
 #2.3 Vérification
-
 print('cos(X)=',np.cos(X))
 #sin_der(X) est bien égal à np.cos(X).
 
-##Formule de Taylor
+##3.Formule de Taylor
 
-#3.1Version 1 : dérivées fournies
+#3.1 Version 1 : dérivées fournies
 
 from math import factorial
 import matplotlib.pyplot as plt
@@ -30,7 +29,9 @@ def taylor1(X, derivatives):
 
 sinus10 = [0, 1, 0, -1, 0, 1, 0, -1, 0, 1]
 X = np.linspace(-2 * np.pi, 2 * np.pi, 400)
+Y0=np.sin(X)
 Y1=taylor1(X,sinus10)
+plt.plot(X,Y0,label="sinus")
 plt.plot(X,Y1,label="taylor1(X,sinus10)")
 plt.legend()
 plt.show()
@@ -45,28 +46,37 @@ def taylor2(X, f, n):
         g=grad(g)
     return taylor1(X,Y)
 
+# exp à l'ordre 2 : 1 + x + x^2/2
+assert np.allclose(taylor2(X, np.exp, 2), 1 + X + X**2 / 2)
+
 #1.
-Y=np.sin(X)
 Y2=taylor2(X,np.sin,10)
-plt.plot(X,Y)
+plt.plot(X,Y0,label='sin')
 plt.plot(X,Y2,label="taylor2(X,np.sin,10)")
 plt.legend()
 plt.show()
 
 #2.
+print("pourcentage du domaine où l'approximation est valide à 10e-3 près :", np.mean(np.abs(Y0-Y2)<=10**(-3))*100,"%")
 
 #3.
 Z=np.cos(X)
 Z2=taylor2(X,np.cos,10)
-plt.plot(X,Z)
+plt.plot(X,Z,label="cosinus")
 plt.plot(X,Z2,label="taylor2(X,np.cos,10)")
 plt.legend()
 plt.show()
 
 #3.3 Une fonction personnalisée
-
 def custom(X):
     return 2*np.sin(X) + np.cos(X/4)
 
 Y3 = custom(X)
 Y4 = taylor2(X, custom, 14)
+plt.plot(X,Y3,label='fontion personnalisée')
+plt.plot(X,Y4,label="taylor2 de custom")
+plt.legend()
+plt.show()
+print("pourcentage du domaine où la coïncidence est à 10e-3 près :", np.mean(np.abs(Y3-Y4)<=10**(-3))*100,"%")
+
+
